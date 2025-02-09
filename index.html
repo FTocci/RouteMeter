@@ -186,7 +186,6 @@
                 .then(response => response.json())
                 .then(data => {
                     const jsonData = JSON.parse(data.contents); // De-serializzare la risposta
-                    console.log(jsonData);
 
                     if (jsonData.status === "OK") {
                         const distance = jsonData.rows[0].elements[0].distance.text;
