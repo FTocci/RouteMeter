@@ -15,8 +15,8 @@ jobs:
 
       - name: Replace SECRET_KEY in HTML
         run: |
-          # Sostituisci la chiave segreta nel file index.html
-          sed -i 's/SECRET_KEY/${{ secrets.SECRET_KEY }}/g' index.html
+          # Assicurati che il segnaposto sia sostituito correttamente nel file index.html
+          sed -i "s/{{SECRET_KEY}}/${{ secrets.SECRET_KEY }}/g" index.html
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.2.3
