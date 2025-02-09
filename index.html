@@ -180,6 +180,7 @@
 
             const proxyUrl = 'https://api.allorigins.win/get?url=';
             const apiKey = "AIzaSyBYt31cBXnT8idyKwypk6rdU5qBigOUXl4"; // Sostituisci con la tua chiave API di Google
+            log(apiKey);
             const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(indirizzo1)}&destinations=${encodeURIComponent(indirizzo2)}&key=${apiKey}`;
 
             fetch(proxyUrl + encodeURIComponent(url))
