@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore di Distanza</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fc;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            width: 80%;
+            max-width: 900px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: inline-block;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f7f7f7;
+            color: #333;
+            font-weight: bold;
+        }
+        td input {
+            width: calc(100% - 20px); /* Diminuisci la larghezza per adattarsi meglio alla cella */
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        td input:focus {
+            border-color: #5b9bd5;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .add-row-btn {
+            background-color: #007BFF;
+            margin-top: 15px;
+        }
+        .add-row-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calcola la Distanza tra Più Punti</h1>
+
+        <label>
+            <input type="checkbox" id="sameStartPoint" onclick="toggleStartPoint()"> Usa lo stesso punto di partenza per tutte le righe
+        </label>
+
+        <table id="addressTable">
+            <thead>
+                <tr>
+                    <th>Indirizzo 1</th>
+                    <th>Indirizzo 2</th>
+                    <th>Risultato</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="text" placeholder="Inserisci primo indirizzo" required></td>
+                    <td><input type="text" placeholder="Inserisci secondo indirizzo" required></td>
+                    <td><button onclick="calcolaDistanza(this)">Calcola Distanza</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button class="add-row-btn" onclick="aggiungiRiga()">Aggiungi Riga</button>
+
+        <div id="output"></div>
+    </div>
+
+    <script>
+        document.querySelector("#addressTable tbody tr:first-child td:first-child input").addEventListener('input', function() {
+            if (document.getElementById("sameStartPoint").checked) {
+                const rows = document.querySelectorAll("#addressTable tbody tr");
+                rows.forEach((row, index) => {
+                    if (index !== 0) {
+                        row.cells[0].getElementsByTagName('input')[0].value = this.value;
+                    }
+                });
+            }
+        });
+
+        function aggiungiRiga() {
+            const table = document.getElementById("addressTable").getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            const cell3 = newRow.insertCell(2);
+
+            const sameStartPoint = document.getElementById("sameStartPoint").checked;
+            const firstAddress = document.querySelector("#addressTable tbody tr:first-child td:first-child input").value;
+
+            cell1.innerHTML = `<input type="text" placeholder="Inserisci primo indirizzo" ${sameStartPoint ? 'disabled value="' + firstAddress + '"' : 'required'}>`;
+            cell2.innerHTML = '<input type="text" placeholder="Inserisci secondo indirizzo" required>';
+            cell3.innerHTML = '<button onclick="calcolaDistanza(this)">Calcola Distanza</button>';
+        }
+
+        function toggleStartPoint() {
+            const sameStartPoint = document.getElementById("sameStartPoint").checked;
+            const rows = document.querySelectorAll("#addressTable tbody tr");
+
+            rows.forEach((row, index) => {
+                const input = row.cells[0].getElementsByTagName('input')[0];
+                if (sameStartPoint) {
+                    if (index === 0) {
+                        input.disabled = false;
+                    } else {
+                        input.disabled = true;
+                        input.value = rows[0].cells[0].getElementsByTagName('input')[0].value;
+                    }
+                } else {
+                    input.disabled = false;
+                }
+            });
+        }
+
+        function calcolaDistanza(button) {
+            const row = button.parentNode.parentNode;
+            const indirizzo1 = row.cells[0].getElementsByTagName('input')[0].value;
+            const indirizzo2 = row.cells[1].getElementsByTagName('input')[0].value;
+
+            if (!indirizzo1 || !indirizzo2) {
+                alert("Inserisci entrambi gli indirizzi.");
+                return;
+            }
+
+            const proxyUrl = 'https://api.allorigins.win/get?url=';
+            const apiKey = config.SECRET_KEY; // Sostituisci con la tua chiave API di Google
+            const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(indirizzo1)}&destinations=${encodeURIComponent(indirizzo2)}&key=${apiKey}`;
+
+            fetch(proxyUrl + encodeURIComponent(url))
+                .then(response => response.json())
+                .then(data => {
+                    const jsonData = JSON.parse(data.contents); // De-serializzare la risposta
+                    console.log(jsonData);
+
+                    if (jsonData.status === "OK") {
+                        const distance = jsonData.rows[0].elements[0].distance.text;
+                        const duration = jsonData.rows[0].elements[0].duration.text;
+                        row.cells[2].innerHTML = `
+                            <p>Distanza: ${distance}</p>
+                            <p>Tempo di percorrenza: ${duration}</p>
+                            <button onclick="modificaDestinazione(this)">Modifica</button>
+                        `;
+                    } else {
+                        row.cells[2].innerHTML = "<p>Errore nel calcolare la distanza. Verifica gli indirizzi inseriti.</p>";
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                    row.cells[2].innerHTML = "<p>Errore nella richiesta. Riprova più tardi.</p>";
+                });
+        }
+
+        function modificaDestinazione(button) {
+            const row = button.parentNode.parentNode;
+            row.cells[0].getElementsByTagName('input')[0].disabled = false;
+            row.cells[1].getElementsByTagName('input')[0].disabled = false;
+            row.cells[2].innerHTML = '<button onclick="calcolaDistanza(this)">Calcola Distanza</button>';
+        }
+    </script>
+</body>
+</html>
